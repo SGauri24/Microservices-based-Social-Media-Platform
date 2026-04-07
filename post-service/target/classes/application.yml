@@ -1,0 +1,25 @@
+server:
+  port: 8082
+
+spring:
+  application:
+    name: post-service
+  datasource:
+    url: jdbc:h2:mem:postdb
+    driverClassName: org.h2.Driver
+    username: sa
+    password: password
+  jpa:
+    database-platform: org.hibernate.dialect.H2Dialect
+    hibernate:
+      ddl-auto: update
+  rabbitmq:
+    host: localhost
+    port: 5672
+    username: guest
+    password: guest
+
+eureka:
+  client:
+    service-url:
+      defaultZone: http://localhost:8761/eureka/

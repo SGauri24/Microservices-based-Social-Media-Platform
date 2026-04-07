@@ -1,0 +1,88 @@
+version: '3.8'
+
+services:
+  eureka-server:
+    build: ./eureka-server
+    ports:
+      - "8761:8761"
+    networks:
+      - social-network
+
+  config-server:
+    build: ./config-server
+    ports:
+      - "8888:8888"
+    networks:
+      - social-network
+
+  api-gateway:
+    build: ./api-gateway
+    ports:
+      - "8080:8080"
+    depends_on:
+      - eureka-server
+    networks:
+      - social-network
+
+  user-service:
+    build: ./user-service
+    environment:
+      - SPRING_PROFILES_ACTIVE=docker
+    depends_on:
+      - eureka-server
+      - postgres
+    networks:
+      - social-network
+
+  post-service:
+    build: ./post-service
+    environment:
+      - SPRING_PROFILES_ACTIVE=docker
+    depends_on:
+      - eureka-server
+      - postgres
+      - rabbitmq
+    networks:
+      - social-network
+
+  notification-service:
+    build: ./notification-service
+    environment:
+      - SPRING_PROFILES_ACTIVE=docker
+    depends_on:
+      - eureka-server
+      - rabbitmq
+    networks:
+      - social-network
+
+  postgres:
+    image: postgres:14
+    environment:
+      - POSTGRES_USER=admin
+      - POSTGRES_PASSWORD=password
+      - POSTGRES_DB=socialdb
+    ports:
+      - "5432:5432"
+    networks:
+      - social-network
+
+  rabbitmq:
+    image: rabbitmq:3-management
+    ports:
+      - "5672:5672"
+      - "15672:15672"
+    networks:
+      - social-network
+
+  frontend:
+    build: ./frontend
+    ports:
+      - "3000:3000"
+    depends_on:
+      - api-gateway
+    networks:
+      - social-network
+
+networks:
+  social-network:
+    driver: bridge
